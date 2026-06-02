@@ -1,0 +1,101 @@
+# vmp_algorithm_extraction domain profile (clark-utov, NOT clark-Hypotask).
+#
+# Declares the *intent-category* semantics for "algorithm extraction": which
+# node states exist, what evidence each closure state demands, and which scope
+# classes apply. base.yaml owns the mechanism floor and is NOT overridable here
+# (Lock A); this file carries domain vocabulary only (Lock C: no mechanism:true).
+#
+# Loaded via Session.load_domain_profile(path, name="vmp_algorithm_extraction").
+# Loading runs lint_domain_yaml + lint_state_names + Lock A.
+
+layer: domain
+inherits: base
+
+# Node states. closure_state-roled names MUST carry an evidence-hint suffix
+# (Hypotask lint_state_names, fix 3) so the closure basis is legible from the
+# name: _form (recomputable), _observed/_stable (observation), _workflow_only
+# (weakest, scope-limited).
+node_states:
+  - name: open
+    roles: []
+  - name: investigating
+    roles: []
+  - name: closed_form
+    roles: [closure_state]
+  - name: env_fixed_observed
+    roles: [closure_state]
+  - name: observed_stable
+    roles: [closure_state]
+  - name: task_level_workflow_only
+    roles: [closure_state]
+  - name: stuck
+    roles: []
+  - name: capability_gap
+    roles: []
+
+# Scope vocabulary + order for this intent category (base provides the
+# ScopeBoundaryGate/UpscaleGate *algorithm*; domain provides the vocabulary).
+scope_classes:
+  - task_bound
+  - env_bound
+  - single_identity_bound
+  - cross_env
+
+# constant_provenance → evidence_class cap. The CLASSIFY LOGIC is utov's
+# (engine/constant_provenance.py::_CATEGORY_TABLE); a cap probe enforces it on
+# every finding. This block declares the same policy as domain vocabulary for
+# Hypotask to store — utov stays the authority, this is the legible mirror.
+constant_provenance_caps:
+  hardcoded_fixed:        {evidence_class_cap: A,  scope: universal,   action: auto_pin}
+  appkey_fixed_function:  {evidence_class_cap: A,  scope: per_appkey,  action: mark_dual_path}
+  session_level_derived:  {evidence_class_cap: B,  scope: per_session, action: escalate_usage_decision}
+  per_input_variable:     {evidence_class_cap: "", scope: per_input,   action: treat_as_variable}
+  undetermined:           {evidence_class_cap: B,  scope: unspecified, action: request_more_observations}
+
+# Usage fork: the task's INTENT forks the scope bar a value may claim. Authority
+# is the domain probe engine/profile/probes/use_case_fork.py; declared here as
+# vocabulary. current-context reproduction must not reach cross_env (that is
+# over-extension); a cross-context claim may, but only with producer invariance
+# proof + dataflow attestation (the same bar the scope-upscale gate enforces).
+use_case_fork:
+  current_context_reproduction:
+    max_scope: env_bound
+  cross_context_claim:
+    max_scope: cross_env
+    requires: producer_dataflow.proof_of_invariance
+
+# state_upgrade_rules: the verifier uses these to adjudicate node state from
+# submitted evidence (agent submits evidence; verifier picks the state, fix 1).
+# Each closure state declares its evidence admission bar explicitly.
+state_upgrade_rules:
+  closed_form:
+    min_evidence_class: A
+    require_kind: dataflow_provenance
+    require_provenance_depth: full_chain
+    require_producer_reads_empty: true
+    require_recomputable: true
+    require_inputs_tested_min: 2
+    require_active_finding: true
+  env_fixed_observed:
+    min_evidence_class: B
+    require_kind: dataflow_provenance
+    require_inputs_tested_min: 1
+    require_active_finding: true
+  observed_stable:
+    min_evidence_class: B
+    require_kind: observation
+    require_inputs_tested_min: 3
+    require_active_finding: true
+  task_level_workflow_only:
+    min_evidence_class: B
+    require_kind: dataflow_provenance
+    require_provenance_depth: full_chain
+    require_active_finding: true
+
+# Domain probes utov registers (kernels live in the utov engine; these are the
+# domain-concept registrations). The cross-node parity probe is registered at
+# runtime in bootstrap (Hypotask v0.1.1 has no public probe-registration API).
+probes:
+  - vmp_handler_pattern
+  - sm3_fingerprint
+  - end_to_end_bytewise

@@ -1,0 +1,64 @@
+clark-utov
+===========
+
+This project includes work derived from third-party sources. License boundaries
+are recorded below in the order each artefact was integrated.
+
+------------------------------------------------------------------------
+Ported from algokiller-plugin (https://github.com/icloudza/algokiller-plugin)
+------------------------------------------------------------------------
+
+Upstream:    icloudza/algokiller-plugin, tools/search/search.c (Sprints 1-6)
+Upstream license: MIT
+Upstream copyright: Copyright (c) 2026 cloudza
+
+The following Python modules in `engine/engine/` are ports of plugin-extension
+code from search.c. Only the Sprint 1-6 plugin-extension subcommands (MIT) were
+ported; the original `match` / `context` / `daemon` engine paths upstream of
+that plugin (separately attributable to @lidongyooo) are NOT vendored.
+
+  engine/data/fingerprints.py
+    Port of:           static const Fingerprint FINGERPRINTS[]
+                       static const InstructionPattern INSTR_PATTERNS[]
+                       per_block_primitive_for()
+                       Verdict enum
+    From section:      Sprint 4 / constscan, search.c §2316-2750
+    Reimplemented in:  Python dataclasses + Confidence enum
+    Constants are RFC/FIPS/GM-standard values (MD5 init, SHA-256 K-table, etc).
+    The compilation, taxonomy, and confidence ratings are ported verbatim.
+
+  engine/fold.py
+    Port of:           run_fold(), run_fold_block(), fold_flush_run(),
+                       line_signature_hash()
+    From section:      Sprint 2 / fold, search.c §1500-1651
+    Adapted to operate on our Instruction stream rather than raw text lines.
+
+  engine/dataflow.py
+    Port of:           run_regflow(), run_producer(), classify_semop()
+    From section:      Sprint 1 / regflow, producer, semop, search.c §920-1180
+    Adapted to use pre-parsed regs_write/regs_read fields on Instruction.
+
+We did NOT port or vendor:
+  - tools/search/search.c match/context/daemon engine paths
+    (upstream provenance: @lidongyooo / AlgoKiller, separate copyright)
+  - The ak_search binary, Makefile, build.sh
+  - The MCP server, Skills, agents, hooks, commands directories
+  - Anything from the .claude-plugin/ namespace
+
+------------------------------------------------------------------------
+clark-utov original code
+------------------------------------------------------------------------
+
+All code under `engine/engine/` not enumerated above (stages/, verifier.py,
+hyp_tree.py, blue_team.py, discipline.py, store.py, llm_client.py,
+runner_client.py, types.py, static_tools.py, cli.py) is original to this
+project and is the work of the clark-utov authors.
+
+example/runner-sha256/libs/arm64-v8a/libsha256.so was built from example/runner-sha256 source in
+this repo (see commit history). Its source is currently archived under
+tmp/jni/ for reference.
+
+testTarget/vmp/libEncryptor.so + trace.txt are third-party artefacts collected
+from a 看雪 forum thread (see dev_doc/sample_sources.md). They are used as
+read-only analysis targets under fair-use / research-use precedent. We do not
+redistribute them outside this private working tree.

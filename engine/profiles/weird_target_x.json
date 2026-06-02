@@ -1,0 +1,17 @@
+{
+  "profile": "weird_target_x",
+  "inherits": "vmp_algorithm_extraction",
+  "node_states": [
+    {"name": "block_dispatch_table_resolved", "roles": []}
+  ],
+  "probes": [
+    {
+      "name": "weird_block_signature_check",
+      "inputs": ["params"],
+      "outputs": ["weird_block_signature"]
+    }
+  ],
+  "scope_semantics": [
+    {"when_state": "block_dispatch_table_resolved", "tag_scope": "post_dispatch_table"}
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "profile": "base",
+  "evidence_classes": [],
+  "node_states": [],
+  "probes": [
+    {
+      "name": "m1_success_audit",
+      "mechanism": true,
+      "inputs": ["method", "params"],
+      "outputs": ["m1_audit"]
+    },
+    {
+      "name": "m3_bypass_block",
+      "mechanism": true,
+      "inputs": ["method", "params", "result"],
+      "outputs": ["m3_bypass"]
+    },
+    {
+      "name": "constant_provenance",
+      "mechanism": true,
+      "inputs": ["method", "params"],
+      "outputs": ["constant_provenance"]
+    },
+    {
+      "name": "value_provenance",
+      "mechanism": true,
+      "inputs": ["method", "params"],
+      "outputs": ["value_provenance"]
+    },
+    {
+      "name": "watch_first_write",
+      "mechanism": true,
+      "inputs": ["method", "params"],
+      "outputs": ["watch_first_write"]
+    },
+    {
+      "name": "scope_boundary_gate",
+      "mechanism": true,
+      "inputs": ["method", "params"],
+      "outputs": ["scope_boundary"]
+    },
+    {
+      "name": "scope_upscale_gate",
+      "mechanism": true,
+      "inputs": ["method", "params"],
+      "outputs": ["scope_upscale"]
+    }
+  ],
+  "gates": [],
+  "routing_rules": [],
+  "scope_semantics": []
+}

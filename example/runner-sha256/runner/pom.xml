@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  example/runner-sha256/runner — Test-only unidbg runner for libsha256.so.
+
+  NOT part of the clark-utov system itself (the engine in engine/). The system
+  treats every runner as external (PLAN §4 / §17). This module exists solely to
+  exercise the conformance gate against a known-good target during P0.
+
+  unidbg is declared `provided` — it is NOT shaded into our jar. User must put
+  unidbg-android (and its transitive deps) on classpath at runtime. See
+  ../../bin/run-runner.sh for the canonical launcher, or set UNIDBG_HOME to a
+  directory containing the unidbg-android jars and run manually:
+
+    java -cp "$UNIDBG_HOME/*:target/sha256-test-runner-0.1.0.jar" \
+         com.clarkutov.runner.test.Main demo
+
+  Source layout:
+    src/main/java        — runner implementation (Sha256TestRunner, Main)
+    ../../contracts/java — Java version of the runner contract (vendored as
+                           an extra source dir via build-helper-maven-plugin)
+
+  Build:    mvn -q -DskipTests package    → produces a thin ~50 KB jar.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.clarkutov</groupId>
+    <artifactId>sha256-test-runner</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <unidbg.version>0.9.9</unidbg.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- unidbg is BYOD (bring your own dep): user supplies via UNIDBG_HOME
+             classpath at runtime. We compile against it but DO NOT ship it. -->
+        <dependency>
+            <groupId>com.github.zhkl0228</groupId>
+            <artifactId>unidbg-android</artifactId>
+            <version>${unidbg.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Compile contracts/java alongside our own sources so the runner
+                 sees the canonical Runner / TargetMeta / etc. types without
+                 having to publish a separate jar. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>add-contracts-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/../../contracts/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <!-- Defensive: even though unidbg is provided-scope and
+                                 won't normally be shaded, explicitly exclude every
+                                 zhkl0228 group and its transitives so an accidental
+                                 dep change can't sneak unidbg back into our jar. -->
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.github.zhkl0228:*</exclude>
+                                    <exclude>com.github.zhkl0228.unidbg:*</exclude>
+                                    <exclude>com.alibaba:fastjson</exclude>
+                                    <exclude>net.java.dev.jna:*</exclude>
+                                    <exclude>org.scijava:*</exclude>
+                                    <exclude>org.slf4j:*</exclude>
+                                    <exclude>commons-codec:*</exclude>
+                                    <exclude>commons-io:*</exclude>
+                                    <exclude>org.apache.commons:*</exclude>
+                                    <exclude>net.dongliu:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.clarkutov.runner.test.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,55 @@
+# Secrets and personal config
+.env
+.env.*
+!.env.example
+
+# NOTE: dev_doc/ , todo/ , agentreport/ are INTERNAL — versioned in THIS private
+# repo on purpose, but must NEVER ship in the open-source repo. They are stripped
+# at release time via git-filter-repo, NOT gitignored here (so they get version
+# control now). The authoritative release exclude list + procedure live in
+# dev_doc/OPEN_SOURCE_CHECKLIST.md. Keep all never-public content under those
+# prefixes so the release filter stays one clean rule.
+
+# Third-party samples not ours to redistribute (kanxue / OWASP / etc)
+testTarget/vmp/
+testTarget/vmp.zip
+
+# Scratch / build artifacts (root-level only — testTarget/libs is our deliverable)
+/tmp/
+/obj/
+/libs/
+/testTarget/
+# Runtime work directories (per-target stage outputs / SQLite ledgers)
+engine/work/
+work/
+
+# Maven build output
+example/runner-sha256/runner/target/
+
+# Python build artifacts
+engine/build/
+engine/dist/
+engine/*.egg-info/
+*.egg-info/
+
+# Local trash (delete convention: mv .trash, never rm)
+.trash/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ruff_cache/
+.pytest_cache/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Claude Code session state (worktrees, agent journals) — never versioned
+.claude/

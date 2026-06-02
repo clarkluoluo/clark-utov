@@ -1,0 +1,49 @@
+{
+  "profile": "vmp_algorithm_extraction",
+  "inherits": "base",
+  "evidence_classes": [
+    {"id": "A", "desc": "closed-form recompute + cross-environment verified"},
+    {"id": "B", "desc": "env-fixed observed / session-bound / task-bound"},
+    {"id": "C", "desc": "speculative / unverified"}
+  ],
+  "node_states": [
+    {"name": "closed_form",         "roles": ["closure_state"]},
+    {"name": "task_level_fixed",    "roles": ["closure_state_within_task"]},
+    {"name": "env_fixed_observed",  "roles": []},
+    {"name": "observed_stable",     "roles": []},
+    {"name": "stuck",               "roles": []},
+    {"name": "capability_gap",      "roles": []}
+  ],
+  "probes": [
+    {
+      "name": "length_chain_check",
+      "inputs": ["params"],
+      "outputs": ["length_chain"]
+    },
+    {
+      "name": "use_case_fork",
+      "inputs": ["params"],
+      "outputs": ["use_case_fork"]
+    }
+  ],
+  "gates": [],
+  "routing_rules": [
+    {"cause": "collection_gap",  "actions": ["auto_collect", "register_backlog"]},
+    {"cause": "recognition_gap", "actions": ["escalate_l2"]},
+    {"cause": "strategy_gap",    "actions": ["escalate_l3"]},
+    {"cause": "true_boundary",   "actions": ["escalate_user"]}
+  ],
+  "scope_semantics": [
+    {"when_state": "task_level_fixed",   "tag_scope": "task_bound"},
+    {"when_state": "env_fixed_observed", "tag_scope": "env_bound"}
+  ],
+  "scope_order": ["task_bound", "env_bound", "single_identity_bound", "cross_env"],
+  "cap_mapping": {
+    "hardcoded_fixed":        "A",
+    "appkey_fixed_function":  "A",
+    "session_level_derived":  "B",
+    "task_level_fixed":       "B",
+    "per_input_variable":     "",
+    "undetermined":           "B"
+  }
+}

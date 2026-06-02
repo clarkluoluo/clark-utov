@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["engine*"]
+exclude = ["tests*", "work*", "tmp*"]
+
+[project]
+name = "clark-utov-engine"
+version = "0.1.0"
+description = "VMP/OLLVM algorithm auto-recovery engine"
+requires-python = ">=3.11"
+dependencies = [
+    "pyarrow>=15.0.0",       # parquet stage outputs
+    "python-dotenv>=1.0.0",  # .env loading for API keys
+    "openai>=1.50.0",        # DeepSeek API (OpenAI-compatible)
+    "jsonschema>=4.21.0",    # LLM output schema validation
+    "click>=8.1.0",          # CLI
+    "tqdm>=4.66.0",          # progress
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+]
+hypotask = [
+    # clark-Hypotask cognitive layer (task/session/finding-grading/runner
+    # abstraction + v0.2.0 probe/verifier-plugin/route/cross-node-probe public
+    # registration). Additive integration only — the RE engine does NOT depend
+    # on it; the integration layer under engine/integration/ does. Locked to
+    # the minor (API may break across minors). v0.2.0 is zero-break over v0.1.1.
+    # Same-machine dev: `pip install -e /path/to/clark-Hypotask` (doc §一.1);
+    # frozen snapshot / CI: install the dist wheel.
+    "clark-hypotask>=0.2,<0.3",
+]
+triton = [
+    # Quarkslab Triton symbolic-execution bindings — used by S3's optional
+    # symex path (`utov pipeline ... --symex triton`). The engine's default
+    # path (concrete DFG) does NOT need this; install only if you want
+    # symbolic ASTs out of S3 for richer S5 simplification.
+    #
+    # pypi name varies by platform; on Linux/macOS arm64 wheels may not exist
+    # and you'll need to build from source — see DEPENDENCIES.md.
+    "triton-library>=0.9",
+]
+
+[project.scripts]
+utov = "engine.cli:main"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

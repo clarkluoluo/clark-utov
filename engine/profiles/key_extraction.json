@@ -1,0 +1,27 @@
+{
+  "profile": "key_extraction",
+  "inherits": "base",
+  "evidence_classes": [
+    {"id": "A", "desc": "key recovered + verified against ground truth"},
+    {"id": "B", "desc": "key material located, session-bound"},
+    {"id": "C", "desc": "speculative locator / unverified recovery"}
+  ],
+  "node_states": [
+    {"name": "key_material_located", "roles": []},
+    {"name": "key_recoverable",      "roles": []},
+    {"name": "key_verified",         "roles": ["closure_state"]},
+    {"name": "stuck",                "roles": []},
+    {"name": "capability_gap",       "roles": []}
+  ],
+  "probes": [],
+  "gates": [],
+  "routing_rules": [
+    {"cause": "collection_gap",  "actions": ["auto_collect", "register_backlog"]},
+    {"cause": "recognition_gap", "actions": ["escalate_l2"]},
+    {"cause": "strategy_gap",    "actions": ["escalate_l3"]},
+    {"cause": "true_boundary",   "actions": ["escalate_user"]}
+  ],
+  "scope_semantics": [
+    {"when_state": "key_recoverable", "tag_scope": "recoverable_session_only"}
+  ]
+}
